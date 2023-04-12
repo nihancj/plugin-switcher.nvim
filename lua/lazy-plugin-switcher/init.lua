@@ -7,7 +7,7 @@ M.io = require 'lazy-plugin-switcher.io'
 
 M.setup = function (opts)
 	for _, v in ipairs(opts["profiles"]) do
-		M.core_plugins[v] = opts[v]
+		M.core_plugins[v] = opts.plugins[v]
 		M.core_hooks[v] = opts.hooks[v]
 	end
 
