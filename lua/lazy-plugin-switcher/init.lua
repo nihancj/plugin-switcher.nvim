@@ -2,7 +2,8 @@ local M = {}
 
 local au_group = vim.api.nvim_create_augroup("lazy-plugin-switcher", { clear = true })
 local io = require("lazy-plugin-switcher.io")
-M.active_profile = ""
+M.profile = {}
+M.profile.active = {}
 M.filetype_mapping = {}
 M.config = { profiles = {}, plugins = {}, hooks = {}, ft = {} }
 
@@ -25,7 +26,7 @@ end
 local gen_commands = function()
 	-- creating user command
 	vim.api.nvim_create_user_command("SwitchPlugins", function(opts)
-		require("lazy-plugin-switcher").toggle_profile(opts.fargs[1])
+		require("lazy-plugin-switcher").profile.toggle(opts.fargs[1])
 	end, {
 		nargs = 1,
 		complete = function(_, _, _)
@@ -48,32 +49,47 @@ local gen_commands = function()
 end
 
 M.on_exit = function()
-	io.write(M.active_profile)
+	io.write(M.profile.active)
 end
 
-M.load_profile = function(profile, is_on_startup)
-	if profile == M.active_profile or not is_valid(M.config.plugins[profile]) then
+M.profile.is_active = function(profile_name)
+	for key, value in pairs(M.profile.active) do
+		if value == profile_name then
+			return key
+		end
+	end
+end
+
+M.profile.load = function(profile, is_to_save)
+	if M.profile.is_active(profile) or not is_valid(M.config.plugins[profile]) then
 		return
 	end
-	M.active_profile = profile
+	if is_to_save then
+		table.insert(M.profile.active, profile)
+	end
 	require("lazy").load({ plugins = M.config.plugins[profile] })
 
 	if type(M.config.hooks[profile]) == "function" then
-		M.config.hooks[profile](is_on_startup)
+		M.config.hooks[profile]()
 	end
 end
 
-M.toggle_profile = function(profile_name)
-	if profile_name == M.active_profile then
-		M.active_profile = ""
+M.profile.unload = function(key)
+	table.remove(M.profile.active, key)
+end
+
+M.profile.toggle = function(profile_name)
+	local active = M.profile.is_active(profile_name)
+	if active then
 		vim.notify("Profile deacivated: " .. profile_name)
+		M.profile.unload(active)
 		return
 	elseif not is_valid(M.config.plugins[profile_name]) then
 		vim.notify("Invalid Profile")
 		return
 	end
 	vim.notify("Profile acivated: " .. profile_name)
-	M.load_profile(profile_name, false)
+	M.profile.load(profile_name, true)
 end
 
 M.check_buf_ft = function()
@@ -81,18 +97,20 @@ M.check_buf_ft = function()
 	M.filetype_mapping[current_filetype] = M.filetype_mapping[current_filetype] or nil
 	if is_valid(M.filetype_mapping[current_filetype]) then
 		for _, profile in pairs(M.filetype_mapping[current_filetype]) do
-			M.load_profile(profile)
+			M.profile.load(profile, false)
 		end
 		M.filetype_mapping[current_filetype] = nil
 	end
 end
 
 M.on_startup = function()
-	local prev_profile = io.read()
-	if not is_valid(prev_profile) then
+	local prev_profiles = io.read()
+	if not is_valid(prev_profiles) then
 		return
 	end
-	M.load_profile(prev_profile, true)
+	for _, prev_profile in ipairs(prev_profiles) do
+		M.profile.load(prev_profile, true)
+	end
 end
 
 M.setup = function(user_opts)
