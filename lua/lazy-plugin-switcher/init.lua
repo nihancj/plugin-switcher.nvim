@@ -14,14 +14,14 @@ local is_valid = function(value)
 	return true
 end
 
-local gen_filetype_mapping = function()
+local gen_filetype_mapping = vim.schedule_wrap(function()
 	for profile, filetypes in pairs(M.config.ft) do
 		for _, filetype in ipairs(filetypes) do
 			M.filetype_mapping[filetype] = M.filetype_mapping[filetype] or {}
 			table.insert(M.filetype_mapping[filetype], profile)
 		end
 	end
-end
+end)
 
 local gen_commands = function()
 	-- creating user command
@@ -92,7 +92,7 @@ M.profile.toggle = function(profile_name)
 	M.profile.load(profile_name, true)
 end
 
-M.check_buf_ft = function()
+M.check_buf_ft = vim.schedule_wrap(function()
 	local current_filetype = vim.api.nvim_buf_get_option(0, "filetype")
 	M.filetype_mapping[current_filetype] = M.filetype_mapping[current_filetype] or nil
 	if is_valid(M.filetype_mapping[current_filetype]) then
@@ -101,7 +101,7 @@ M.check_buf_ft = function()
 		end
 		M.filetype_mapping[current_filetype] = nil
 	end
-end
+end)
 
 M.on_startup = function()
 	local prev_profiles = io.read()
