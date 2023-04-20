@@ -2,8 +2,10 @@ local M = {}
 
 local au_group = vim.api.nvim_create_augroup("lazy-plugin-switcher", { clear = true })
 local io = require("lazy-plugin-switcher.io")
+
 M.profile = {}
 M.profile.active = {}
+M.profile.has_changed = false
 M.filetype_mapping = {}
 M.config = { profiles = {}, plugins = {}, hooks = {}, ft = {} }
 
@@ -49,7 +51,9 @@ local gen_commands = function()
 end
 
 M.on_exit = function()
-	io.write()
+	if M.profile.has_changed then
+		io.write()
+	end
 end
 
 M.profile.is_active = function(profile_name)
@@ -68,7 +72,7 @@ M.profile.load = function(profile)
 	end
 end
 
-M.profile.safe_load = function (profile)
+M.profile.safe_load = function(profile)
 	if M.profile.is_active(profile) or not is_valid(M.config.plugins[profile]) then
 		return
 	end
@@ -76,6 +80,7 @@ M.profile.safe_load = function (profile)
 end
 
 M.profile.toggle = function(profile_name)
+	M.profile.has_changed = true
 	local active = M.profile.is_active(profile_name)
 	if active then
 		vim.notify("Profile deacivated: " .. profile_name)
