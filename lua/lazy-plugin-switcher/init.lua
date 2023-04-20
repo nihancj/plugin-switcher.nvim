@@ -49,7 +49,7 @@ local gen_commands = function()
 end
 
 M.on_exit = function()
-	io.write(M.profile.active)
+	io.write()
 end
 
 M.profile.is_active = function(profile_name)
