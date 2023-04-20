@@ -60,13 +60,7 @@ M.profile.is_active = function(profile_name)
 	end
 end
 
-M.profile.load = function(profile, is_to_save)
-	if M.profile.is_active(profile) or not is_valid(M.config.plugins[profile]) then
-		return
-	end
-	if is_to_save then
-		table.insert(M.profile.active, profile)
-	end
+M.profile.load = function(profile)
 	require("lazy").load({ plugins = M.config.plugins[profile] })
 
 	if type(M.config.hooks[profile]) == "function" then
@@ -74,22 +68,26 @@ M.profile.load = function(profile, is_to_save)
 	end
 end
 
-M.profile.unload = function(key)
-	table.remove(M.profile.active, key)
+M.profile.safe_load = function (profile)
+	if M.profile.is_active(profile) or not is_valid(M.config.plugins[profile]) then
+		return
+	end
+	M.profile.load(profile)
 end
 
 M.profile.toggle = function(profile_name)
 	local active = M.profile.is_active(profile_name)
 	if active then
 		vim.notify("Profile deacivated: " .. profile_name)
-		M.profile.unload(active)
+		table.remove(M.profile.active, active)
 		return
 	elseif not is_valid(M.config.plugins[profile_name]) then
 		vim.notify("Invalid Profile")
 		return
 	end
 	vim.notify("Profile acivated: " .. profile_name)
-	M.profile.load(profile_name, true)
+	table.insert(M.profile.active, profile_name)
+	M.profile.load(profile_name)
 end
 
 M.check_buf_ft = vim.schedule_wrap(function()
@@ -97,7 +95,7 @@ M.check_buf_ft = vim.schedule_wrap(function()
 	M.filetype_mapping[current_filetype] = M.filetype_mapping[current_filetype] or nil
 	if is_valid(M.filetype_mapping[current_filetype]) then
 		for _, profile in pairs(M.filetype_mapping[current_filetype]) do
-			M.profile.load(profile, false)
+			M.profile.safe_load(profile)
 		end
 		M.filetype_mapping[current_filetype] = nil
 	end
@@ -109,7 +107,8 @@ M.on_startup = function()
 		return
 	end
 	for _, prev_profile in ipairs(prev_profiles) do
-		M.profile.load(prev_profile, true)
+		table.insert(M.profile.active, prev_profile)
+		M.profile.load(prev_profile)
 	end
 end
 
