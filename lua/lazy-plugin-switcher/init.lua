@@ -52,7 +52,7 @@ end
 
 M.on_exit = function()
 	if M.profile.has_changed then
-		io.write()
+		io.write(M.profile.active)
 	end
 end
 

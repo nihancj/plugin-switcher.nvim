@@ -9,11 +9,10 @@ M.read = function ()
 	end
 return active_profiles end
 
-M.write = function()
-	local active_profiles = require("lazy-plugin-switcher").profile.active
+M.write = function(profiles)
 	local file = io.open(M.filename, "w")
-	for _, line in ipairs(active_profiles) do
-		file:write(line .. "\n")
+	for _, profile in ipairs(profiles) do
+		file:write(profile .. "\n")
 	end
 	io.close(file)
 end
