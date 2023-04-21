@@ -7,7 +7,7 @@ M.profile = {}
 M.profile.active = {}
 M.profile.has_changed = false
 M.filetype_mapping = {}
-M.config = { profiles = {}, plugins = {}, hooks = {}, ft = {} }
+M.config = { profiles = {}, plugins = {}, hooks = {}, ft = {}, persistence = {} }
 
 local is_valid = function(value)
 	if value == nil or value == "" or value == {} then
@@ -91,7 +91,9 @@ M.profile.toggle = function(profile_name)
 		return
 	end
 	vim.notify("Profile acivated: " .. profile_name)
-	table.insert(M.profile.active, profile_name)
+	if not is_valid(M.config.persistence[profile_name]) or M.config.persistence[profile_name] == true then
+		table.insert(M.profile.active, profile_name)
+	end
 	M.profile.load(profile_name)
 end
 
