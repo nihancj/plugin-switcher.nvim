@@ -1,7 +1,7 @@
 local M = {}
 
-local au_group = vim.api.nvim_create_augroup("lazy-plugin-switcher", { clear = true })
-local io = require("lazy-plugin-switcher.io")
+local au_group = vim.api.nvim_create_augroup("plugin-switcher", { clear = true })
+local io = require("plugin-switcher.io")
 
 M.profile = {}
 M.profile.active = {}
@@ -27,8 +27,8 @@ end)
 
 local gen_commands = function()
 	-- creating user command
-	vim.api.nvim_create_user_command("SwitchPlugins", function(opts)
-		require("lazy-plugin-switcher").profile.toggle(opts.fargs[1])
+	vim.api.nvim_create_user_command("Pload", function(opts)
+		require("plugin-switcher").profile.toggle(opts.fargs[1])
 	end, {
 		nargs = 1,
 		complete = function(_, _, _)
@@ -39,13 +39,13 @@ local gen_commands = function()
 	-- auto command to save current session on exit
 	vim.api.nvim_create_autocmd("VimLeavePre", {
 		group = au_group,
-		command = 'lua require("lazy-plugin-switcher").on_exit()',
+		command = 'lua require("plugin-switcher").on_exit()',
 	})
 	-- auto command to check buffer filetype
 	if is_valid(M.config.ft) then
 		vim.api.nvim_create_autocmd("BufEnter", {
 			group = au_group,
-			command = 'lua require("lazy-plugin-switcher").check_buf_ft()',
+			command = 'lua require("plugin-switcher").check_buf_ft()',
 		})
 	end
 end

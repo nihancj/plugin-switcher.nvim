@@ -1,6 +1,6 @@
 M = {}
 
-M.filename = vim.fn.stdpath("cache") .. "/lazypluginswitch.txt"
+M.filename = vim.fn.stdpath("cache") .. "/plugin-switcher.txt"
 
 M.read = function ()
 	local active_profiles = {}

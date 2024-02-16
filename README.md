@@ -1,5 +1,5 @@
-# LazyPluginSwitcher
-Manage your "lazy" plugins.
+# PluginSwitcher
+Switch between your plugins
 
 ## ⚙️ Functionality
 - This plugin will let you group your plugins into different profiles and load them according to your needs.<br/>
@@ -13,13 +13,13 @@ Manage your "lazy" plugins.
 ## 📦 Installation
 Only recommended with [lazy.nvim](https://github.com/folke/lazy.nvim):
 ```lua
-{ 'nihancj/lazy-plugin-switcher.nvim' }
+{ 'nihancj/plugin-switcher.nvim' }
 ```
 
 ## 🛠️ Setup
 Here is an example config:
 ```lua
-require('lazy-plugin-switcher').setup({
+require('plugin-switcher').setup({
   -- Create profiles
   profiles = { "minimal", "crazycoder" },
 
@@ -44,4 +44,4 @@ require('lazy-plugin-switcher').setup({
 })
 ```
 ##  Commands
-```:SwitchPlugins <profile_name>```
+```:Pload <profile_name>```
