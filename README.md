@@ -1,5 +1,5 @@
 # PluginSwitcher
-Switch between your plugins
+Switch between plugins depending on your needs
 
 ## ⚙️ Functionality
 - This plugin will let you group your plugins into different profiles and load them according to your needs.<br/>
