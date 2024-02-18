@@ -7,7 +7,6 @@ M.profile = {}
 M.profile.available = {}
 M.profile.active = {}
 M.profile.has_changed = false
-M.filetype_mapping = {}
 M.config = { plugins = {}, filetype_plugins = {}, hooks = {}, persistence = {} }
 
 local is_valid = function(value)
@@ -88,20 +87,13 @@ M.profile.toggle = function(profile_name)
 		return
 	end
 	vim.notify("Profile acivated: " .. profile_name)
-	-- if not is_valid(M.config.persistence[profile_name]) or M.config.persistence[profile_name] == true then
-	-- 	table.insert(M.profile.active, profile_name)
-	-- end
 	M.profile.load(profile_name)
 end
 
 M.check_buf_ft = vim.schedule_wrap(function()
 	local current_filetype = vim.api.nvim_buf_get_option(0, "filetype")
-	M.filetype_mapping[current_filetype] = M.filetype_mapping[current_filetype] or nil
-	if is_valid(M.filetype_mapping[current_filetype]) then
-		for _, profile in pairs(M.filetype_mapping[current_filetype]) do
-			M.profile.safe_load(profile)
-		end
-		M.filetype_mapping[current_filetype] = nil
+	if is_valid(M.config.filetype_plugins[current_filetype]) then
+		M.profile.load(current_filetype)
 	end
 end)
 
