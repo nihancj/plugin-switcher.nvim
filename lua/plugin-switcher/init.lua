@@ -8,7 +8,7 @@ M.profile.available = {}
 M.profile.active = {}
 M.profile.has_changed = false
 M.filetype_mapping = {}
-M.config = { plugins = {}, hooks = {}, ft = {}, persistence = {} }
+M.config = { plugins = {}, filetype_plugins = {}, hooks = {}, persistence = {} }
 
 local is_valid = function(value)
 	if value == nil or value == "" or value == {} then
@@ -16,15 +16,6 @@ local is_valid = function(value)
 	end
 	return true
 end
-
-local gen_filetype_mapping = vim.schedule_wrap(function()
-	for profile, filetypes in pairs(M.config.ft) do
-		for _, filetype in ipairs(filetypes) do
-			M.filetype_mapping[filetype] = M.filetype_mapping[filetype] or {}
-			table.insert(M.filetype_mapping[filetype], profile)
-		end
-	end
-end)
 
 local gen_commands = function()
 	-- creating user command
@@ -43,7 +34,7 @@ local gen_commands = function()
 		command = 'lua require("plugin-switcher").on_exit()',
 	})
 	-- auto command to check buffer filetype
-	if is_valid(M.config.ft) then
+	if is_valid(M.config.filetype_plugins) then
 		vim.api.nvim_create_autocmd("BufEnter", {
 			group = au_group,
 			command = 'lua require("plugin-switcher").check_buf_ft()',
@@ -130,7 +121,6 @@ M.setup = function(user_opts)
 		end
 	end
 
-	gen_filetype_mapping()
 	gen_commands()
 	M.on_startup()
 end
