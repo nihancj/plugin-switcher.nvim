@@ -33,7 +33,15 @@ require('plugin-switcher').setup({
     },
   },
 
-  -- A function executed after plugins are loaded
+  -- Set plugins to load on specified filetypes
+  filetype_plugins = {
+    lua = {
+      "one-small-step-for-vimkind"
+    },
+  },
+
+  -- Set a function to execute after a profile group is loaded
+  -- Works with groups specified in plugins and filetype_plugins
   -- is_startup: true if the profile is being loaded when nvim starts.
   hooks = {
     crazycoder = function(is_startup)
