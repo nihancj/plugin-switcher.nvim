@@ -56,19 +56,24 @@ M.profile.is_active = function(profile_name)
 	end
 end
 
-M.profile.load = function(profile)
-	require("lazy").load({ plugins = M.config.plugins[profile] })
+local load = function(plugins_n_hook)
+	require("lazy").load({ plugins = plugins_n_hook[1] })
 
-	if type(M.config.hooks[profile]) == "function" then
-		M.config.hooks[profile]()
+	if type(plugins_n_hook[2]) == "function" then
+		plugins_n_hook[2]()
 	end
 end
 
-M.profile.safe_load = function(profile)
-	if M.profile.is_active(profile) or not is_valid(M.config.plugins[profile]) then
+M.profile.load = function(profile_name)
+	if M.profile.is_active(profile_name) then
 		return
 	end
-	M.profile.load(profile)
+	if is_valid(M.config.plugins[profile_name]) then
+		load({ M.config.plugins[profile_name], M.config.hooks[profile_name] })
+		table.insert(M.profile.active, profile_name)
+	elseif is_valid(M.config.filetype_plugins[profile_name]) then
+		load({ M.config.filetype_plugins[profile_name], M.config.hooks[profile_name] })
+	end
 end
 
 M.profile.toggle = function(profile_name)
@@ -83,9 +88,9 @@ M.profile.toggle = function(profile_name)
 		return
 	end
 	vim.notify("Profile acivated: " .. profile_name)
-	if not is_valid(M.config.persistence[profile_name]) or M.config.persistence[profile_name] == true then
-		table.insert(M.profile.active, profile_name)
-	end
+	-- if not is_valid(M.config.persistence[profile_name]) or M.config.persistence[profile_name] == true then
+	-- 	table.insert(M.profile.active, profile_name)
+	-- end
 	M.profile.load(profile_name)
 end
 
@@ -106,7 +111,6 @@ M.on_startup = function()
 		return
 	end
 	for _, prev_profile in ipairs(prev_profiles) do
-		table.insert(M.profile.active, prev_profile)
 		M.profile.load(prev_profile)
 	end
 end
