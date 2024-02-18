@@ -4,10 +4,11 @@ local au_group = vim.api.nvim_create_augroup("plugin-switcher", { clear = true }
 local io = require("plugin-switcher.io")
 
 M.profile = {}
+M.profile.available = {}
 M.profile.active = {}
 M.profile.has_changed = false
 M.filetype_mapping = {}
-M.config = { profiles = {}, plugins = {}, hooks = {}, ft = {}, persistence = {} }
+M.config = { plugins = {}, hooks = {}, ft = {}, persistence = {} }
 
 local is_valid = function(value)
 	if value == nil or value == "" or value == {} then
@@ -32,7 +33,7 @@ local gen_commands = function()
 	end, {
 		nargs = 1,
 		complete = function(_, _, _)
-			return M.config.profiles
+			return M.profile.available
 		end,
 	})
 
@@ -122,6 +123,11 @@ end
 M.setup = function(user_opts)
 	for option, value in pairs(user_opts) do
 		M.config[option] = value
+		if option == "plugins" then
+			for profile_name, _ in pairs(value) do
+				table.insert(M.profile.available, profile_name)
+			end
+		end
 	end
 
 	gen_filetype_mapping()

@@ -20,10 +20,7 @@ Only recommended with [lazy.nvim](https://github.com/folke/lazy.nvim):
 Here is an example config:
 ```lua
 require('plugin-switcher').setup({
-  -- Create profiles
-  profiles = { "minimal", "crazycoder" },
-
-  -- Specify plugins for each profile
+  -- Group different plugins together with a name
   plugins = {
     minimal = {
       'which-key.nvim',
@@ -38,8 +35,9 @@ require('plugin-switcher').setup({
 
   -- A function executed after plugins are loaded
   -- is_startup: true if the profile is being loaded when nvim starts.
-  hooks.crazycoder = function(is_startup)
-    vim.cmd "LspStart"
+  hooks = {
+    crazycoder = function(is_startup)
+      vim.cmd "LspStart"
   end
 })
 ```
